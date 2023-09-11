@@ -1,0 +1,16 @@
+{
+    "uni": "loop",
+    "input": {
+        "array": [
+            1
+        ]
+    },
+    "loopTimes": 10,
+    "isPipe": true,
+    "child": {
+        "uni": "mix",
+        "json": {
+            "array": "${concat(array,seq.list(2))}"
+        }
+    }
+}

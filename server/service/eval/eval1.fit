@@ -1,0 +1,9 @@
+{
+    "uni": "loop",
+    "input": {
+        "a": 1
+    },
+    "child": {
+        "uni": "eval"
+    }
+}

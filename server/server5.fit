@@ -7,13 +7,13 @@
         {
             "uni": "mix",
             "json": {
-                "port": "${10111+loopIndex}"
+                "port": "${12111+loopIndex}"
             }
         },
         {
             "uni": "server",
             "welcome": "welcome to fit lang world!",
-            "action": {
+            "service": {
                 "/hello": {
                     "uni": "hello"
                 }
