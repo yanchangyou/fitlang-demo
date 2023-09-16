@@ -1,0 +1,27 @@
+{
+    "uni": "pipe",
+    "child": [
+        {
+            "uni": "server",
+            "port": 50000,
+            "service": {
+                "/hello": {
+                    "uni": "hello"
+                }
+            }
+        },
+        {
+            "uni": "postJson",
+            "param": {
+                "who": "postJson"
+            },
+            "url": "http://127.0.0.1:50000/hello"
+        },
+        {
+            "uni": "assert",
+            "expected": {
+                "message": "hello, postJson!"
+            }
+        }
+    ]
+}

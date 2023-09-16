@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div style="text-align:right;margin-right:50px;">
+    <a target="_blank" href="/">root</a>
+    &nbsp;<a target="_blank" href="/_api">api</a>
+    &nbsp;<a target="_blank" href="/_cloud?_jsonFormat=true">online</a>
+    <a target="_blank" href="/demo/monitor/">monitor</a>
+    &nbsp;<a target="_blank" href="https://plugins.jetbrains.com/plugin/22593-fitlang/fitlang">doc</a>
+    &nbsp;<a target="_blank" href="https://plugins.jetbrains.com/plugin/22593-fitlang/plugin">plugin</a>
+</div>
+
+<h2 style="text-align:center;margin:3px;">FitServer monitor</h2>
+<div style="text-align:left;">
+    <select style="font-size:1.15rem;" onchange="fetch(this.value)">
+        <option value="1">1秒</option>
+        <option value="5">5秒</option>
+        <option value="10">10秒</option>
+        <option value="30">30秒</option>
+        <option value="60">1分钟</option>
+        <option value="300">5分钟</option>
+        <option value="600" selected>10分钟</option>
+        <option value="1800">30分钟</option>
+        <option value="3600">1小钟</option>
+        <option value="7200">2小钟</option>
+        <option value="18000">5小钟</option>
+        <option value="36000">10小钟</option>
+        <option value="864000">1天</option>
+        <option value="604800">1周</option>
+        <option value="2592000">1月</option>
+        <option value="31536000">1年</option>
+    </select>
+    <select id="choiceType" style="font-size:1.15rem;" onchange="show(this.value)">
+        <option value="cpuChart">CPU(%)</option>
+        <option value="memoryChart">Memory(G)</option>
+    </select> &nbsp;&nbsp;
+    <span id="cpuTotalWrap">总CPU:<span id="cpuTotal"></span></span>
+</div>
+<div>
+    <canvas id="cpuChart"></canvas>
+    <canvas id="memoryChart" style="display:none;"></canvas>
+</div>
+
+<script src="chart-3.9.1.js"></script>
+<script>
+    var httpRequest = new XMLHttpRequest();
+
+    function request(action, url, input, callback) {
+        httpRequest.open(action, url, true);
+        httpRequest.onreadystatechange = function(message) {
+            if (httpRequest.readyState == 4 && httpRequest.status == 200) {
+                callback(httpRequest.responseText);
+            }
+        };
+        var body = null;
+        if(typeof(input)==="string") {
+            body = input;
+        } else if(typeof(input)==="object") {
+            body = JSON.stringify(input);
+        }
+        httpRequest.send(body);
+    }
+
+</script>
+<script>
+
+    const cpuChartCanvas = document.getElementById('cpuChart');
+    const memoryChartCanvas = document.getElementById('memoryChart');
+
+    const cpuColorMap = {
+        "free": 'rgb(0, 200, 0)',
+        "used": 'rgb(220, 0, 0)',
+        "user": 'rgb(120, 0, 0)',
+        "sys": 'rgb(150, 100, 0)',
+        "wait": 'rgb(200, 0, 50)',
+    };
+    const memoryColorMap = {
+        "total": 'rgb(120, 120, 120)',
+        "available": 'rgb(0, 200, 0)',
+        "used": 'rgb(220, 0, 0)',
+    };
+    function addPoint(colorMap, datasets, pointData) {
+        var i=0;
+        for(var color in colorMap) {
+            if(datasets[i] == null) {
+                datasets[i] = {};
+                datasets[i].data = [];
+            }
+            datasets[i].label = color;
+            datasets[i].data.push(pointData[color]);
+
+            datasets[i].borderColor = colorMap[color];
+            i++;
+        }
+    }
+
+    var myCpuChat;
+    var myMemoryChat;
+    function fetch(second) {
+        var url = "getMonitorData.fit?second=" + second
+        request("POST", url, "", function(body){
+           var result = JSON.parse(body);
+
+           myCpuChat = showChat(cpuChartCanvas, myCpuChat, result.cpuPoints, cpuColorMap);
+           myMemoryChat = showChat(memoryChartCanvas, myMemoryChat,result.memoryPoints, memoryColorMap);
+           document.getElementById("cpuTotal").innerText = result.cpuTotal;
+
+           show(document.getElementById("choiceType").value);
+
+        });
+    }
+
+    function showChat(chartCanvas, chartObject, points, colorMap) {
+
+       var data =  {labels:[],datasets:[]};
+       for(var i=0; i<points.length; i++) {
+           data.labels[i] = points[i].timestampShow;
+           addPoint(colorMap, data.datasets, points[i]);
+       }
+
+       if(chartObject instanceof Chart){
+           chartObject.destroy();
+       }
+       return new Chart(chartCanvas, {
+            type: 'line',
+            data: data,
+        });
+    }
+
+    function show(domId) {
+        if(domId === 'cpuChart') {
+           document.getElementById('memoryChart').style.display = 'none';
+           document.getElementById('cpuTotalWrap').style.display = '';
+        } else {
+           document.getElementById('cpuChart').style.display = 'none';
+           document.getElementById('cpuTotalWrap').style.display = 'none';
+        }
+        document.getElementById(domId).style.display = '';
+    }
+
+    fetch(600);
+</script>
+
+</body>
+</html>

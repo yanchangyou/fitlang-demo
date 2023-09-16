@@ -1,9 +1,0 @@
-{
-    "description": "a simple hello world demo",
-    "input": {
-        "who": "world"
-    },
-    "flow": {
-        "uni": "hello"
-    }
-}

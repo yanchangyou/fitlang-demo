@@ -1,5 +1,0 @@
-{
-    "uni": "hello",
-    "who": "fit",
-    "message": "${'hello, '+who+'!'}"
-}

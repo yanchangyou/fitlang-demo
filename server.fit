@@ -1,0 +1,34 @@
+{
+    "uni": "server",
+    "port": 11111,
+//    "disableInnerService": [
+//        "_shutdown",
+//        "_stop",
+//        "_reload",
+//        "_cloud"
+//    ],
+    "init": {
+        "uni": "sequence",
+        "child": [
+            {
+                "uni": "startMonitor",
+                "second": 5
+            },
+            {
+                "uni": "cloudServer",
+                "port": 20000
+            }
+        ]
+    },
+    "service": {
+        "/hello": {
+            "uni": "hello"
+        },
+        "/execute": {
+            "uni": "execute"
+        },
+        "/monitor/get": {
+            "uni": "getMonitorData"
+        }
+    }
+}
