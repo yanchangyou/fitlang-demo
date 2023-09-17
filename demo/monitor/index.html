@@ -5,10 +5,10 @@
 </head>
 <body>
 <div style="text-align:right;margin-right:50px;">
-    <a target="_blank" href="/">root</a>
+    &nbsp;<a target="_blank" href="/">root</a>
     &nbsp;<a target="_blank" href="/_api">api</a>
-    &nbsp;<a target="_blank" href="/_cloud?_jsonFormat=true">online</a>
-    <a target="_blank" href="/demo/monitor/">monitor</a>
+    &nbsp;<a target="_blank" href="/online.html">online</a>
+    &nbsp;<a target="_blank" href="/demo/monitor/">monitor</a>
     &nbsp;<a target="_blank" href="https://plugins.jetbrains.com/plugin/22593-fitlang/fitlang">doc</a>
     &nbsp;<a target="_blank" href="https://plugins.jetbrains.com/plugin/22593-fitlang/plugin">plugin</a>
 </div>
@@ -21,8 +21,8 @@
         <option value="10">10秒</option>
         <option value="30">30秒</option>
         <option value="60">1分钟</option>
-        <option value="300">5分钟</option>
-        <option value="600" selected>10分钟</option>
+        <option value="300" selected>5分钟</option>
+        <option value="600">10分钟</option>
         <option value="1800">30分钟</option>
         <option value="3600">1小钟</option>
         <option value="7200">2小钟</option>
@@ -64,6 +64,17 @@
         httpRequest.send(body);
     }
 
+    var urlParam = {};
+    var pageQuery = window.location.search;
+    if(pageQuery.indexOf("?")>-1) {
+        pageQuery = pageQuery.substr(1);
+        var parts = pageQuery.split("&");
+        for(var i=0; i<parts.length; i++) {
+            var items = parts[i].split("=");
+            urlParam[items[0]] = items[1];
+        }
+    }
+
 </script>
 <script>
 
@@ -101,8 +112,15 @@
     var myMemoryChat;
     function fetch(second) {
         var url = "getMonitorData.fit?second=" + second
+        if(urlParam['clientId']) {
+           url = "getClientMonitorData.fit?clientId=" + urlParam['clientId'];
+        }
         request("POST", url, "", function(body){
            var result = JSON.parse(body);
+           if(result.message) {
+                alert(result.mssage);
+                return;
+           }
 
            myCpuChat = showChat(cpuChartCanvas, myCpuChat, result.cpuPoints, cpuColorMap);
            myMemoryChat = showChat(memoryChartCanvas, myMemoryChat,result.memoryPoints, memoryColorMap);
@@ -127,6 +145,19 @@
        return new Chart(chartCanvas, {
             type: 'line',
             data: data,
+            options:{
+                tension: 0.4,
+                responsive: true,
+                interaction: {
+                  mode: 'index',
+                  intersect: false,
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true
+                  }
+                }
+            }
         });
     }
 

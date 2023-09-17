@@ -1,0 +1,18 @@
+{
+    "_flag": "_needFormatJsonInConsole",
+    "uni": "pipe",
+    "child": [
+        {
+            "uni": "cloudGetClient"
+        },
+        {
+            "uni": "convert",
+            "needCloneInputData": true,
+            "express": {
+                "clients[].clientId": "${clients[].clientId}",
+                "clients[].sessionId": "${clients[].sessionId}",
+                "clients[].connectTime": "${clients[].connectTime}"
+            }
+        }
+    ]
+}
