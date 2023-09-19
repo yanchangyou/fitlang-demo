@@ -5,34 +5,45 @@
 </head>
 <body>
 <div style="text-align:right;margin-right:50px;">
-    &nbsp;<a target="_blank" href="/">root</a>
+    &nbsp;<a target="" href="/">root</a>
     &nbsp;<a target="_blank" href="/_api">api</a>
-    &nbsp;<a target="_blank" href="/online.html">online</a>
-    &nbsp;<a target="_blank" href="/demo/monitor/">monitor</a>
+    &nbsp;<a target="" href="/online.html">online</a>
+    &nbsp;<a target="" href="/demo/monitor/">monitor</a>
     &nbsp;<a target="_blank" href="https://plugins.jetbrains.com/plugin/22593-fitlang/fitlang">doc</a>
     &nbsp;<a target="_blank" href="https://plugins.jetbrains.com/plugin/22593-fitlang/plugin">plugin</a>
+    &nbsp;<a target="_blank" href="https://github.com/yanchangyou/fitlang">github</a>
+    &nbsp;<a target="_blank" href="https://github.com/yanchangyou/fitlang-demo">demo</a>
 </div>
 
 <h2 style="text-align:center;margin:3px;">FitServer monitor</h2>
 <div style="text-align:left;">
-    <select style="font-size:1.15rem;" onchange="fetch(this.value)">
-        <option value="1">1秒</option>
-        <option value="5">5秒</option>
-        <option value="10">10秒</option>
-        <option value="30">30秒</option>
-        <option value="60">1分钟</option>
-        <option value="300" selected>5分钟</option>
-        <option value="600">10分钟</option>
-        <option value="1800">30分钟</option>
-        <option value="3600">1小钟</option>
-        <option value="7200">2小钟</option>
-        <option value="18000">5小钟</option>
-        <option value="36000">10小钟</option>
-        <option value="864000">1天</option>
-        <option value="604800">1周</option>
-        <option value="2592000">1月</option>
-        <option value="31536000">1年</option>
-    </select>
+    自动刷新间隔：<select style="font-size:1.15rem;" onchange="setRefreshTime(this.value)">
+    <option value="-1">无</option>
+    <option value="1">手动1次</option>
+    <option value="2">2秒</option>
+    <option value="5">5秒</option>
+    <option value="10" selected>10秒</option>
+    <option value="30">30秒</option>
+    <option value="60">1分钟</option>
+</select>
+    显示最近：<select id="fetchSecond" style="font-size:1.15rem;" onchange="fetch(this.value)">
+    <option value="1">1秒</option>
+    <option value="5">5秒</option>
+    <option value="10">10秒</option>
+    <option value="30">30秒</option>
+    <option value="60">1分钟</option>
+    <option value="300" selected>5分钟</option>
+    <option value="600">10分钟</option>
+    <option value="1800">30分钟</option>
+    <option value="3600">1小钟</option>
+    <option value="7200">2小钟</option>
+    <option value="18000">5小钟</option>
+    <option value="36000">10小钟</option>
+    <option value="864000">1天</option>
+    <option value="604800">1周</option>
+    <option value="2592000">1月</option>
+    <option value="31536000">1年</option>
+</select>
     <select id="choiceType" style="font-size:1.15rem;" onchange="show(this.value)">
         <option value="cpuChart">CPU(%)</option>
         <option value="memoryChart">Memory(G)</option>
@@ -75,6 +86,7 @@
         }
     }
 
+
 </script>
 <script>
 
@@ -113,7 +125,7 @@
     function fetch(second) {
         var url = "getMonitorData.fit?second=" + second
         if(urlParam['clientId']) {
-           url = "getClientMonitorData.fit?clientId=" + urlParam['clientId'];
+           url = "getClientMonitorData.fit?clientId=" + urlParam['clientId'] + "&second=" + second;
         }
         request("POST", url, "", function(body){
            var result = JSON.parse(body);
@@ -172,7 +184,32 @@
         document.getElementById(domId).style.display = '';
     }
 
-    fetch(600);
+    var intervalObject;
+    function setRefreshTime(second) {
+        if(intervalObject) {
+           clearInterval(intervalObject);
+        }
+        second = second - 0;
+        if(second === 1) {
+            fetch(getFetchSecond());
+            return;
+        }
+        if(second < 2) {
+            return;
+        }
+        intervalObject = setInterval(function(){
+           fetch(getFetchSecond());
+        }, second * 1000);
+    }
+
+    function getFetchSecond() {
+        return document.getElementById("fetchSecond").value;
+    }
+
+    fetch(300);
+
+    setRefreshTime(10);
+
 </script>
 
 </body>
