@@ -2,12 +2,14 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/fitlang.svg"/>
 </head>
 <body>
 <div style="text-align:right;margin-right:50px;">
     &nbsp;<a target="" href="/">root</a>
     &nbsp;<a target="" href="/online.html">online</a>
-    &nbsp;<a target="" href="/demo/monitor/">monitor</a>
+    &nbsp;<a target="" href="/server.fit">startMonitor</a>
+    &nbsp;<a target="" href="/demo/monitor/index.html">monitor</a>
     &nbsp;<a target="_blank" href="/_api">api</a>
     &nbsp;<a target="_blank" href="https://plugins.jetbrains.com/plugin/22593-fitlang/fitlang">doc</a>
     &nbsp;<a target="_blank" href="https://plugins.jetbrains.com/plugin/22593-fitlang/plugin">plugin</a>
@@ -48,14 +50,22 @@
         <option value="cpuChart">CPU(%)</option>
         <option value="memoryChart">Memory(G)</option>
     </select> &nbsp;&nbsp;
-    <span id="cpuTotalWrap">总CPU:<span id="cpuTotal"></span></span>
+    <span id="cpuTotalWrap">闲置CPU：<span id="allCpuSumFree"></span>C(<span id="cpuCount"></span>C) 估值：<span
+            id="allCpuSumFreeMoney"></span>元/天</span>
+    <span style="display:none;" id="memoryTotalWrap">闲置内存：<span id="allMemorySumFree"></span>G(<span
+            id="memoryG"></span>G) 估值：<span id="allMemorySumFreeMoney"></span>元/天</span>
 </div>
 <div>
     <canvas id="cpuChart"></canvas>
     <canvas id="memoryChart" style="display:none;"></canvas>
 </div>
 
-<script src="chart-3.9.1.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>-->
+
+<script src="chart-3.9.1.min.js"></script>
+<script src="chartjs-adapter-date-fns-3.0.0.min.js"></script>
+
 <script>
     var httpRequest = new XMLHttpRequest();
 
@@ -85,7 +95,6 @@
             urlParam[items[0]] = items[1];
         }
     }
-
 
 </script>
 <script>
@@ -130,20 +139,28 @@
         request("POST", url, "", function(body){
            var result = JSON.parse(body);
            if(result.message) {
-                alert(result.mssage);
+                alert(result.message);
                 return;
            }
 
-           myCpuChat = showChat(cpuChartCanvas, myCpuChat, result.cpuPoints, cpuColorMap);
-           myMemoryChat = showChat(memoryChartCanvas, myMemoryChat,result.memoryPoints, memoryColorMap);
-           document.getElementById("cpuTotal").innerText = result.cpuTotal;
+           myCpuChat = showChat(cpuChartCanvas, myCpuChat, result.cpuPoints, cpuColorMap, result.min, result.max);
+           myMemoryChat = showChat(memoryChartCanvas, myMemoryChat,result.memoryPoints, memoryColorMap, result.min, result.max);
+
+           document.getElementById("allCpuSumFree").innerText = result.sumCpuPoints.allCpuSumFree;
+           document.getElementById("allMemorySumFree").innerText = result.sumMemoryPoints.allMemorySumFree;
+
+           document.getElementById("allCpuSumFreeMoney").innerText = result.sumCpuPoints.allCpuSumFreeMoney;
+           document.getElementById("allMemorySumFreeMoney").innerText = result.sumMemoryPoints.allMemorySumFreeMoney;
+
+           document.getElementById("cpuCount").innerText = result.cpuCount;
+           document.getElementById("memoryG").innerText = result.memoryG;
 
            show(document.getElementById("choiceType").value);
 
         });
     }
 
-    function showChat(chartCanvas, chartObject, points, colorMap) {
+    function showChat(chartCanvas, chartObject, points, colorMap, min, max) {
 
        var data =  {labels:[],datasets:[]};
        for(var i=0; i<points.length; i++) {
@@ -154,6 +171,8 @@
        if(chartObject instanceof Chart){
            chartObject.destroy();
        }
+       //chartjs适配：https://github.com/chartjs/awesome#adapters
+       //日期时间格式：https://github.com/chartjs/chartjs-adapter-date-fns
        return new Chart(chartCanvas, {
             type: 'line',
             data: data,
@@ -167,7 +186,19 @@
                 scales: {
                   y: {
                     beginAtZero: true
-                  }
+                  },
+                  x: {
+                    type: 'time',
+                    time: {
+                      tooltipFormat: 'yyyy-MM-dd HH:mm:ss',
+                      unit: 'second',
+                      displayFormats: {
+                         second: 'yyyy-MM-dd HH:mm:ss'
+                      },
+                    },
+                    min: min,
+                    max: max
+                 },
                 }
             }
         });
@@ -177,9 +208,12 @@
         if(domId === 'cpuChart') {
            document.getElementById('memoryChart').style.display = 'none';
            document.getElementById('cpuTotalWrap').style.display = '';
+           document.getElementById('memoryTotalWrap').style.display = 'none';
+
         } else {
            document.getElementById('cpuChart').style.display = 'none';
            document.getElementById('cpuTotalWrap').style.display = 'none';
+           document.getElementById('memoryTotalWrap').style.display = '';
         }
         document.getElementById(domId).style.display = '';
     }
