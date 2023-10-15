@@ -1,0 +1,109 @@
+{
+    "flag": "_needFormatJsonInConsole",
+    "input": {
+        "workspaceDir": "/opt/github/fitlang/fitlang-server/demo/fitserver/app/postman/",
+        "filePath": "fit-test.postman_collection.json"
+    },
+    "uni": "pipe",
+    "child": [
+        {
+            "uni": "readFile"
+        },
+        {
+            "uni": "parseJson",
+            "jsonField": "content"
+        },
+        {
+            "uni": "replace",
+            "json": {
+                "item": "${content.item}",
+                "collectionName": "${content.info.name}"
+            }
+        },
+        {
+            "uni": "set",
+            "key": "collectionName",
+            "value": "${collectionName}"
+        },
+        {
+            "uni": "foreach",
+            "foreachField": "item",
+            "child": {
+                "id": "switch",
+                "uni": "switch",
+                "switchField": "${boolean(item)+''}",
+                "child": [
+                    {
+                        "case": "false",
+                        "uni": "pipe",
+                        "child": [
+                            {
+                                "uni": "mix",
+                                "json": {
+                                    "isFolder": false
+                                }
+                            },
+                            {
+                                "id": "convertItem",
+                                "uni": "pipe",
+                                "child": [
+                                    {
+                                        "uni": "convert",
+                                        "express": {
+                                            "name": "${name}",
+                                            "content.uni": "http",
+                                            "content.name": "${name}",
+                                            "content.method": "${request.method}",
+                                            "content.url": "${request.url.raw}",
+                                            "content.param": "${request.body.raw}",
+                                            "isFolder": "${isFolder}"
+                                        }
+                                    },
+                                    {
+                                        "uni": "mix",
+                                        "json": {
+                                            "filePath": "${collectionName + (isFolder?parentName:'') + '/' + name+'.fit'}"
+                                        }
+                                    },
+                                    {
+                                        "uni": "parseJson",
+                                        "jsonField": "content.param"
+                                    },
+                                    {
+                                        "uni": "writeFile",
+                                        "format": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "case": "true",
+                        "uni": "pipe",
+                        "child": [
+                            {
+                                "uni": "mix",
+                                "json": {
+                                    "parentName": "${'/'+name}",
+                                    "isFolder": true
+                                }
+                            },
+                            {
+                                "uni": "foreach",
+                                "foreachField": "item",
+                                "mixToItemField": [
+                                    "parentName",
+                                    "isFolder"
+                                ],
+                                "child": {
+                                    "uni": "call",
+                                    "nodeId": "convertItem"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
