@@ -1,0 +1,16 @@
+{
+    "flag": "_needFormatJsonInConsole",
+    "uni": "timeCount",
+    "child": {
+        "uni": "loop",
+        "isPipe": true,
+        "loopTimes": 10000,
+        "child": {
+            "uni": "mix",
+            "json": {
+                "times": "${loopIndex+1}",
+                "times1": "${loopIndex+1}"
+            }
+        }
+    }
+}
