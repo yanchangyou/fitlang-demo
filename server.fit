@@ -34,6 +34,9 @@
         "/hello": {
             "uni": "hello"
         },
+        "/echo": {
+            "uni": "echo"
+        },
         "/execute": {
             "uni": "execute"
         },
