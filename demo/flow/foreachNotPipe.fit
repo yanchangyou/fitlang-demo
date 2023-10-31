@@ -8,7 +8,12 @@
     },
     "uni": "foreach",
     "foreachField": "list",
-    "child": {
-        "uni": "increase"
-    }
+    "child": [
+        {
+            "uni": "increase"
+        },
+        {
+            "uni": "increase"
+        }
+    ]
 }

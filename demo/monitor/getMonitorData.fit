@@ -1,4 +1,4 @@
 {
-    "_flag": "_needFormatJsonInConsole",
+    "flag": "needFormatJsonInConsoleFlag",
     "uni": "getMonitorData"
 }
