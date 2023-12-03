@@ -1,0 +1,9 @@
+{
+    "flag": "needFormatJsonInConsoleFlag",
+    "uni": "cmd:java",
+    "option": {
+        "-XX:": "+PrintGCDetails",
+        "-Dkey=": "value"
+    },
+    "target": "-version"
+}

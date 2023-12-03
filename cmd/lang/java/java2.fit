@@ -1,0 +1,14 @@
+{
+    "flag": "needFormatJsonInConsoleFlag",
+    "uni": "batch",
+    "child": [
+        {
+            "uni": "cmd:javac",
+            "target": "Hello.java"
+        },
+        {
+            "uni": "cmd:java",
+            "target": "Hello"
+        }
+    ]
+}
