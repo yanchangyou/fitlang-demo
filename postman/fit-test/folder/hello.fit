@@ -1,0 +1,13 @@
+{
+    "name": "hello",
+    "uni": "postman",
+    "method": "POST",
+    "header":{
+        "contentType": null
+    },
+    "url": "http://fit.321zou.com/hello",
+    "query": null,
+    "body":{
+        "who": "fit"
+    }
+}

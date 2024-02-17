@@ -1,0 +1,11 @@
+{
+    "name": "first",
+    "uni": "postman",
+    "method": "GET",
+    "header":{
+        "contentType": null
+    },
+    "url": "http://fit.321zou.com/_ip",
+    "query": null,
+    "body": null
+}

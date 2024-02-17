@@ -1,0 +1,15 @@
+{
+    "name": "helloForm",
+    "uni": "postman",
+    "method": "POST",
+    "header":{
+        "who": "1",
+        "contentType": null
+    },
+    "url": "http://fit.321zou.com/hello",
+    "query":{
+        "who": "1",
+        "field2": "abc"
+    },
+    "body": null
+}
